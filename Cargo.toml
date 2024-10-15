@@ -1,6 +1,4 @@
-[package]
-name = "asmrs"
-version = "0.1.0"
-edition = "2021"
+[workspace]
 
-[dependencies]
+members = ["asmrs-parser", "asmrs-assembler", "asmrs-vm", "asmrs-vm"]
+resolver = "2"
