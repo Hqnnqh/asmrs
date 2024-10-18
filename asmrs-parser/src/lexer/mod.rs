@@ -82,9 +82,69 @@ pub fn tokenize(input: String) -> Result<Vec<Token>, SyntaxError> {
                     }
                 }
             }
+            // parse comma
             ',' => {
                 tokens.push(Token::new(TokenType::Comma, line_index, char_index, 1));
                 char_index += 1;
+            }
+            // parse memory location
+            '[' => {
+                let start_index = char_index;
+
+                let mut buffer = String::default();
+                char_index += 1;
+
+                while let Some(next_character) = input.peek() {
+                    if !next_character.is_ascii_alphanumeric() {
+                        break;
+                    }
+
+                    buffer.push(*next_character);
+
+                    input.next();
+                    char_index += 1;
+                }
+
+                if let Some(next_character) = input.next() {
+                    if next_character == ']' {
+                        char_index += 1;
+
+                        // hex
+                        let (buffer, radix) = if buffer.starts_with("0x") {
+                            (&buffer[2..], 16)
+                        } else if buffer.ends_with("h") {
+                            (&buffer[0..buffer.len() - 1], 16)
+                        }
+                        // dec
+                        else {
+                            (buffer.as_str(), 10)
+                        };
+
+                        let value = u16::from_str_radix(buffer, radix).map_err(|_| {
+                            SyntaxError::new(
+                                "Expected 16-bit memory address. Invalid memory location syntax."
+                                    .to_string(),
+                                line_index,
+                                start_index,
+                            )
+                        })?;
+
+                        tokens.push(Token::new(
+                            TokenType::MemoryLocation(value),
+                            line_index,
+                            start_index,
+                            char_index - start_index,
+                        ));
+
+                        continue;
+                    }
+                }
+
+                return Err(SyntaxError::new(
+                    "Expected ']'. Invalid memory location syntax.".to_string(),
+                    line_index,
+                    char_index,
+                ));
             }
             _ => todo!("Implement remaining syntactical patterns"),
         }
@@ -319,6 +379,18 @@ fn tokenize_label() {
         output[0],
         Token::new(TokenType::Label("mylabel:".to_string()), 0, 0, 8)
     );
+}
+
+#[test]
+fn tokenize_memory_location() {
+    let input = "[beefh]".to_string();
+    let output = tokenize(input);
+    assert!(output.is_ok());
+    let output = output.unwrap();
+    assert_eq!(
+        output[0],
+        Token::new(TokenType::MemoryLocation(0xbeef), 0, 0, 7)
+    )
 }
 
 #[derive(Clone, Debug)]
