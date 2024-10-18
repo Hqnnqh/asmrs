@@ -1,7 +1,7 @@
 # asmrs
 
 ## Overview
-This project is a simple assembler written in Rust that translates x86-64 assembly instructions into their corresponding machine code.
+This project is a simple assembler written in Rust that translates 16-bit assembly instructions into their corresponding machine code. It also includes a virtual machine to run the code.
 
 ## Requirements
 
