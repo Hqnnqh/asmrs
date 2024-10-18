@@ -11,6 +11,17 @@ pub struct Token {
     char_len: usize,
 }
 
+impl Token {
+    pub fn new(r#type: TokenType, line_index: usize, char_index: usize, char_len: usize) -> Token {
+        Self {
+            r#type,
+            line_index,
+            char_index,
+            char_len,
+        }
+    }
+}
+
 /// Types of tokens
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TokenType {
@@ -19,6 +30,7 @@ pub enum TokenType {
     Constant(u16),                // 1234h, ...
     MemoryLocation(u16),          // [0xbeef], [0xcafe], ...
     Label(String),                // hello:, MSG:, ...
+    Comma,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
