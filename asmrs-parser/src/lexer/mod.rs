@@ -111,10 +111,10 @@ pub fn tokenize(input: String) -> Result<Vec<Token>, SyntaxError> {
                         char_index += 1;
 
                         // hex
-                        let (buffer, radix) = if buffer.starts_with("0x") {
-                            (&buffer[2..], 16)
-                        } else if buffer.ends_with("h") {
-                            (&buffer[0..buffer.len() - 1], 16)
+                        let (buffer, radix) = if let Some(stripped) = buffer.strip_prefix("0x") {
+                            (stripped, 16)
+                        } else if let Some(stripped) = buffer.strip_suffix("h") {
+                            (stripped, 16)
                         }
                         // dec
                         else {
